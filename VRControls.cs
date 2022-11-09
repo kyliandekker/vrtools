@@ -26,11 +26,11 @@ namespace VRTools.Interaction
 	}
 
 	class FloatInputAction
-    {
+	{
 		public XRNode Hand;
 		public float Value;
 		public FloatInputAction(XRNode hand) => Hand = hand;
-    }
+	}
 
 	public class VRControls : UnitySingleton<VRControls>
 	{
@@ -118,40 +118,40 @@ namespace VRTools.Interaction
 			CheckInput();
 		}
 
-        private void CheckInput()
+		private void CheckInput()
 		{
 			FloatInputAction[] grip =
 			{
 				_rightHandGrip,
 				_leftHandGrip,
 			};
-            for (int i = 0; i < grip.Length; i++)
-				CheckPinchInput(grip[i]);
+			for (int i = 0; i < grip.Length; i++)
+				CheckPinchInput(ref grip[i]);
 
 			FloatInputAction[] trigger =
 			{
 				_rightHandTrigger,
 				_leftHandTrigger,
 			};
-            for (int i = 0; i < trigger.Length; i++)
-				CheckTriggerInput(trigger[i]);
+			for (int i = 0; i < trigger.Length; i++)
+				CheckTriggerInput(ref trigger[i]);
 		}
 
-        private void CheckPinchInput(FloatInputAction floatInputAction)
+		private void CheckPinchInput(ref FloatInputAction floatInputAction)
 		{
 			InputDevices.GetDevicesAtXRNode(floatInputAction.Hand, Devices);
 			if (Devices.Count > 0)
-            {
+			{
 				InputDevice controller = Devices[Devices.Count - 1];
 				floatInputAction.Value = CheckPinch(controller, floatInputAction.Value, GetHand(XRNodeToHand(floatInputAction.Hand)));
 			}
 		}
 
-        private void CheckTriggerInput(FloatInputAction floatInputAction)
+		private void CheckTriggerInput(ref FloatInputAction floatInputAction)
 		{
 			InputDevices.GetDevicesAtXRNode(floatInputAction.Hand, Devices);
 			if (Devices.Count > 0)
-            {
+			{
 				InputDevice controller = Devices[Devices.Count - 1];
 				floatInputAction.Value = CheckTrigger(controller, floatInputAction.Value, GetHand(XRNodeToHand(floatInputAction.Hand)));
 			}
@@ -162,6 +162,7 @@ namespace VRTools.Interaction
 			if (Devices.Count > 0)
 			{
 				_ = controller.TryGetFeatureValue(CommonUsages.grip, out float tempGrip);
+				tempGrip = Mathf.Round(tempGrip);
 				if (prevValue != tempGrip && tempGrip == 0)
 				{
 					{
@@ -179,7 +180,7 @@ namespace VRTools.Interaction
 					return tempGrip;
 				}
 				if (tempGrip == 0)
-                {
+				{
 					grabber.ForceRelease();
 					return tempGrip;
 				}
@@ -195,6 +196,7 @@ namespace VRTools.Interaction
 			if (Devices.Count > 0)
 			{
 				controller.TryGetFeatureValue(CommonUsages.trigger, out float tempTrigger);
+				tempTrigger = Mathf.Round(tempTrigger);
 				if (prevValue != tempTrigger && tempTrigger == 0)
 				{
 					{
@@ -208,7 +210,7 @@ namespace VRTools.Interaction
 
 					return tempTrigger;
 				}
-                {
+				{
 					TriggerPressedEventArgs e = new TriggerPressedEventArgs
 					{
 						grabber = grabber,
