@@ -63,6 +63,8 @@ namespace VRTools.Interaction
 		protected void OnGrabbed(object sender, GrabbedEventArgs e)
 		{
 			Grabbed.Invoke(sender, e);
+
+			VRControls.Instance.OnObjectGrabbed(this, e);
 		}
 
 		/* 
@@ -75,6 +77,8 @@ namespace VRTools.Interaction
 		protected void OnReleased(object sender, ReleasedEventArgs e)
 		{
 			Released.Invoke(sender, e);
+
+			VRControls.Instance.OnObjectReleased(this, e);
 		}
 
 		protected Grabber _grabbedBy = null;

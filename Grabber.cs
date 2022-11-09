@@ -106,24 +106,7 @@ namespace VRTools.Interaction
 
 			_grabbedObj = _potentiallyGrabbedObject;
 			if (_grabbedObj.Grab(this, _parentHeldObject))
-			{
-				{
-					ObjectGrabbedEventArgs e = new ObjectGrabbedEventArgs
-					{
-						grabber = this,
-						grabbedObject = _grabbedObj
-					};
-					VRControls.Instance.OnObjectGrabbed(this, e);
-				}
-				{
-					GrabEventArgs e = new GrabEventArgs
-					{
-						grabber = this,
-						grabbed = _grabbedObj
-					};
-					OnGrab(this, e);
-				}
-			}
+				return;
 		}
 
 		public void ResetGrabbable() => _grabbedObj = null;
@@ -135,22 +118,6 @@ namespace VRTools.Interaction
 
 			if (_grabbedObj.Release(this, linearVelocity, angularVelocity))
 			{
-				{
-					ObjectReleasedEventArgs e = new ObjectReleasedEventArgs
-					{
-						grabber = this,
-						grabbedObject = _grabbedObj
-					};
-					VRControls.Instance.OnObjectReleased(this, e);
-				}
-				{
-					ReleaseEventArgs e = new ReleaseEventArgs
-					{
-						grabber = this,
-						grabbed = _grabbedObj
-					};
-					OnRelease(this, e);
-				}
 				if (_grabbedObj == _potentiallyGrabbedObject)
 					_potentiallyGrabbedObject = null;
 				_grabbedObj = null;

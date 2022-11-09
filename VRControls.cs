@@ -7,18 +7,6 @@ using VRTools.Utils;
 
 namespace VRTools.Interaction
 {
-	public class ObjectGrabbedEventArgs : EventArgs
-	{
-		public GrabbableObject grabbedObject = null;
-		public Grabber grabber = null;
-	}
-
-	public class ObjectReleasedEventArgs : EventArgs
-	{
-		public GrabbableObject grabbedObject = null;
-		public Grabber grabber = null;
-	}
-
 	public class GripReleasedEventArgs : EventArgs
 	{
 		public Grabber grabber = null;
@@ -49,13 +37,11 @@ namespace VRTools.Interaction
 		/* 
 		* Name: OnObjectGrabbed.
 		* Description: Called when a player picks up an object.
-			* grabbedObject: GrabbableObject, the grabbed object.
-			* grabber: Grabber, the controller.
 		*/
-		public delegate void ObjectGrabbedHandler(object sender, ObjectGrabbedEventArgs e);
+		public delegate void ObjectGrabbedHandler(object sender, GrabbedEventArgs e);
 		public event ObjectGrabbedHandler ObjectGrabbed = delegate { };
 
-		public void OnObjectGrabbed(object sender, ObjectGrabbedEventArgs e)
+		public void OnObjectGrabbed(object sender, GrabbedEventArgs e)
 		{
 			ObjectGrabbed.Invoke(sender, e);
 		}
@@ -63,13 +49,11 @@ namespace VRTools.Interaction
 		/* 
 		* Name: OnObjectReleased.
 		* Description: Called when a player releases a picked up an object.
-			* grabbedObject: GrabbableObject, the grabbed object.
-			* grabber: Grabber, the controller.
 		*/
-		public delegate void ObjectReleasedHandler(object sender, ObjectReleasedEventArgs e);
+		public delegate void ObjectReleasedHandler(object sender, ReleasedEventArgs e);
 		public event ObjectReleasedHandler ObjectReleased = delegate { };
 
-		public void OnObjectReleased(object sender, ObjectReleasedEventArgs e)
+		public void OnObjectReleased(object sender, ReleasedEventArgs e)
 		{
 			ObjectReleased.Invoke(sender, e);
 		}
