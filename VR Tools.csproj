@@ -55,7 +55,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Editor\GrabbableObjectEditor.cs" />
     <Compile Include="GrabbableObject.cs" />
     <Compile Include="Grabber.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
