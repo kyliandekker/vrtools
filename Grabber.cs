@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.XR;
 
 namespace VRTools.Interaction
 {

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace VRTools.Interaction.Editor
 {
-	[CustomEditor(typeof(GrabbableObject))]
+	[CustomEditor(typeof(GrabbableObject), true)]
 	public class GrabbableObjectEditor : UnityEditor.Editor
 	{
 		public override void OnInspectorGUI()

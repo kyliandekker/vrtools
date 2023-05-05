@@ -113,13 +113,13 @@ namespace VRTools.Interaction
 			if (!CanBeGrabbed)
 				return false;
 
-			if (_grabbedBy)
+			if (_grabbedBy == grabber)
 				return false;
 
 			if (!grabber)
 				return false;
 
-			GetComponentsInChildren<Collider>().ToList().FindAll(x => !x.isTrigger).ForEach(x => x.enabled = false);
+			GetComponentsInChildren<Collider>().ToList().ForEach(x => x.isTrigger = true);
 
 			if (parentGrabbedObject || _grabSettings.ParentObject)
 				transform.SetParent(grabber.transform);
@@ -167,7 +167,10 @@ namespace VRTools.Interaction
 			if (!_grabbedBy)
 				return false;
 
-			GetComponentsInChildren<Collider>().ToList().FindAll(x => !x.isTrigger).ForEach(x => x.enabled = true);
+			if (_grabbedBy != grabber)
+				return true;
+
+			GetComponentsInChildren<Collider>().ToList().ForEach(x => x.isTrigger = false);
 
 			Rigidbody _rigidBody = gameObject.GetComponent<Rigidbody>();
 			_rigidBody.isKinematic = false;

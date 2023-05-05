@@ -11,6 +11,8 @@ namespace VRTools.Interaction
 	{
 		public Grabber grabber = null;
 		public float value = 0.0f;
+		public float floatValue = 0.0f;
+		public InputDevice device;
 	}
 
 	public class TriggerReleasedEventArgs : EventArgs
@@ -23,9 +25,11 @@ namespace VRTools.Interaction
 	{
 		public Grabber grabber = null;
 		public float value = 0.0f;
+		public float floatValue = 0.0f;
+		public InputDevice device;
 	}
 
-	class FloatInputAction
+	public class FloatInputAction
 	{
 		public XRNode Hand;
 		public float Value;
@@ -104,6 +108,16 @@ namespace VRTools.Interaction
 			_rightHandGrip = new FloatInputAction(XRNode.RightHand), _leftHandGrip = new FloatInputAction(XRNode.LeftHand),
 			_rightHandTrigger = new FloatInputAction(XRNode.RightHand), _leftHandTrigger = new FloatInputAction(XRNode.LeftHand);
 
+		public FloatInputAction GetHandTrigger(Hand hand)
+        {
+			return hand == Hand.Hand_Left ? _leftHandTrigger : _rightHandTrigger;
+        }
+
+		public FloatInputAction GetHandGrip(Hand hand)
+        {
+			return hand == Hand.Hand_Left ? _leftHandGrip : _rightHandGrip;
+        }
+
 		public float ThrowForceMultiplication = 1.0f;
 
 		new private void Awake()
@@ -162,14 +176,16 @@ namespace VRTools.Interaction
 			if (Devices.Count > 0)
 			{
 				_ = controller.TryGetFeatureValue(CommonUsages.grip, out float tempGrip);
-				tempGrip = Mathf.Round(tempGrip);
-				if (prevValue != tempGrip && tempGrip == 0)
+				float tempGripRound = Mathf.Round(tempGrip);
+				if (prevValue != tempGripRound && tempGripRound == 0)
 				{
 					{
 						GripReleasedEventArgs e = new GripReleasedEventArgs
 						{
 							grabber = grabber,
-							value = tempGrip,
+							value = tempGripRound,
+							floatValue = tempGripRound,
+							device = controller
 						};
 						OnGripReleased(this, e);
 					}
@@ -177,16 +193,16 @@ namespace VRTools.Interaction
 					_ = controller.TryGetFeatureValue(CommonUsages.deviceVelocity, out Vector3 velocity);
 					_ = controller.TryGetFeatureValue(CommonUsages.deviceAngularVelocity, out Vector3 angularVelocity);
 					grabber.StartRelease(velocity * ThrowForceMultiplication, angularVelocity * ThrowForceMultiplication);
-					return tempGrip;
+					return tempGripRound;
 				}
-				if (tempGrip == 0)
+				if (tempGripRound == 0)
 				{
 					grabber.ForceRelease();
-					return tempGrip;
+					return tempGripRound;
 				}
-				else if (tempGrip > 0.01)
+				else if (tempGripRound > 0.01)
 					grabber.StartGrab();
-				return tempGrip;
+				return tempGripRound;
 			}
 			return 0.0f;
 		}
@@ -196,30 +212,32 @@ namespace VRTools.Interaction
 			if (Devices.Count > 0)
 			{
 				controller.TryGetFeatureValue(CommonUsages.trigger, out float tempTrigger);
-				tempTrigger = Mathf.Round(tempTrigger);
-				if (prevValue != tempTrigger && tempTrigger == 0)
+				float tempTriggerRound = Mathf.Round(tempTrigger);
+				if (prevValue != tempTriggerRound && tempTriggerRound == 0)
 				{
 					{
 						TriggerReleasedEventArgs e = new TriggerReleasedEventArgs
 						{
 							grabber = grabber,
-							value = tempTrigger,
+							value = tempTriggerRound,
 						};
 						OnTriggerReleased(this, e);
 					}
 
-					return tempTrigger;
+					return tempTriggerRound;
 				}
 				{
 					TriggerPressedEventArgs e = new TriggerPressedEventArgs
 					{
 						grabber = grabber,
-						value = tempTrigger,
+						value = tempTriggerRound,
+						floatValue = tempTrigger,
+						device = controller
 					};
 					OnTriggerPressed(this, e);
 				}
 
-				return tempTrigger;
+				return tempTriggerRound;
 			}
 			return 0.0f;
 		}
