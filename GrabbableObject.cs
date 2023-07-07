@@ -41,14 +41,16 @@ namespace VRTools.Interaction
 	[System.Serializable]
 	public class GrabSettings
 	{
-		public HandGrabSettings LeftHandSetting = new HandGrabSettings();
-		public HandGrabSettings RightHandSetting = new HandGrabSettings();
 		public bool KinematicOnGrab = false;
 		public bool DestroyOnRelease = false;
 		public bool ParentObject = false;
+		public bool ReparentOnRelease = false;
 
 		public SnapSettings SnapSettings = SnapSettings.SnapSettings_None;
+		public SnapTransform SnapTransformLeft = new SnapTransform();
 		public SnapTransform SnapTransform = new SnapTransform();
+
+		public bool HasPriority = false;
 	}
 
 	public class GrabbableObject : MonoBehaviour
@@ -93,8 +95,15 @@ namespace VRTools.Interaction
 
 		[SerializeField]
 		private GrabSettings _grabSettings = null;
+		public GrabSettings GrabSettings => _grabSettings;
 
-		protected void Awake() => _initialTransform = transform.parent;
+		private Collider[] colliders;
+
+		protected void Awake()
+        {
+			_initialTransform = transform.parent;
+			colliders = GetComponentsInChildren<Collider>();
+		}
 
         void OnDestroy()
 		{
@@ -119,7 +128,10 @@ namespace VRTools.Interaction
 			if (!grabber)
 				return false;
 
-			GetComponentsInChildren<Collider>().ToList().ForEach(x => x.isTrigger = true);
+			if (_grabbedBy && _grabbedBy != grabber)
+				_grabbedBy.ResetGrabbable();
+
+			colliders.ToList().ForEach(x => x.isTrigger = true);
 
 			if (parentGrabbedObject || _grabSettings.ParentObject)
 				transform.SetParent(grabber.transform);
@@ -141,13 +153,14 @@ namespace VRTools.Interaction
 
 			if (_grabSettings.SnapSettings == SnapSettings.SnapSettings_Position || _grabSettings.SnapSettings == SnapSettings.SnapSettings_Both)
             {
-				if (grabber.HandType == Hand.Hand_Right)
-					transform.localPosition = _grabSettings.SnapTransform.Position;
-				else
-					transform.localPosition = new Vector3(-_grabSettings.SnapTransform.Position.x, _grabSettings.SnapTransform.Position.y, _grabSettings.SnapTransform.Position.z);
+				transform.localPosition = grabber.HandType == Hand.Hand_Right ? _grabSettings.SnapTransform.Position : _grabSettings.SnapTransformLeft.Position;
 			}
 			if (_grabSettings.SnapSettings == SnapSettings.SnapSettings_Rotation || _grabSettings.SnapSettings == SnapSettings.SnapSettings_Both)
-				transform.localRotation = Quaternion.Euler(_grabSettings.SnapTransform.Rotation.x, _grabSettings.SnapTransform.Rotation.y, _grabSettings.SnapTransform.Rotation.z);
+			{
+				transform.localRotation = grabber.HandType == Hand.Hand_Right
+					? Quaternion.Euler(_grabSettings.SnapTransform.Rotation.x, _grabSettings.SnapTransform.Rotation.y, _grabSettings.SnapTransform.Rotation.z)
+					: Quaternion.Euler(_grabSettings.SnapTransformLeft.Rotation.x, _grabSettings.SnapTransformLeft.Rotation.y, _grabSettings.SnapTransformLeft.Rotation.z);
+			}
 
 			FixedJoint joint = AddFixedJoint();
 
@@ -170,7 +183,7 @@ namespace VRTools.Interaction
 			if (_grabbedBy != grabber)
 				return true;
 
-			GetComponentsInChildren<Collider>().ToList().ForEach(x => x.isTrigger = false);
+			colliders.ToList().ForEach(x => x.isTrigger = false);
 
 			Rigidbody _rigidBody = gameObject.GetComponent<Rigidbody>();
 			_rigidBody.isKinematic = false;
@@ -178,7 +191,10 @@ namespace VRTools.Interaction
 			_rigidBody.angularVelocity = angularVelocity;
 			_grabbedBy = null;
 
-			transform.SetParent(_initialTransform);
+			if (_grabSettings.ReparentOnRelease)
+				transform.SetParent(_initialTransform);
+			else
+				transform.SetParent(null);
 
 			ReleasedEventArgs e = new ReleasedEventArgs
 			{

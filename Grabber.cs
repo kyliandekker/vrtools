@@ -83,7 +83,10 @@ namespace VRTools.Interaction
 			if (_grabbedObj != null)
 				return;
 
-			if (!_potentiallyGrabbedObject || Vector3.Distance(_potentiallyGrabbedObject.transform.position, transform.position) < Vector3.Distance(grabbable.transform.position, transform.position))
+			if (_potentiallyGrabbedObject && _potentiallyGrabbedObject.GrabSettings.HasPriority)
+				return;
+
+			if (!_potentiallyGrabbedObject || grabbable.GrabSettings.HasPriority || Vector3.Distance(_potentiallyGrabbedObject.transform.position, transform.position) < Vector3.Distance(grabbable.transform.position, transform.position))
 				_potentiallyGrabbedObject = grabbable;
 		}
 
@@ -107,7 +110,11 @@ namespace VRTools.Interaction
 
 			_grabbedObj = _potentiallyGrabbedObject;
 			if (_grabbedObj.Grab(this, _parentHeldObject))
+            {
+				if (_potentiallyGrabbedObject && _potentiallyGrabbedObject.GrabbedBy && _potentiallyGrabbedObject.GrabbedBy != this)
+					_potentiallyGrabbedObject.GrabbedBy.ResetGrabbable();
 				return;
+			}
 		}
 
 		public void ResetGrabbable() => _grabbedObj = null;
