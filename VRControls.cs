@@ -126,6 +126,34 @@ namespace VRTools.Interaction
 			GetHands();
 		}
 
+		private void OnDestroy()
+		{
+			foreach (Delegate d in ObjectGrabbed.GetInvocationList())
+				ObjectGrabbed -= (ObjectGrabbedHandler)d;
+			foreach (Delegate d in ObjectReleased.GetInvocationList())
+				ObjectReleased -= (ObjectReleasedHandler)d;
+			foreach (Delegate d in GripReleased.GetInvocationList())
+				GripReleased -= (GripReleasedHandler)d;
+			foreach (Delegate d in TriggerReleased.GetInvocationList())
+				TriggerReleased -= (TriggerReleasedHandler)d;
+			foreach (Delegate d in TriggerPressed.GetInvocationList())
+				TriggerPressed -= (TriggerPressedHandler)d;
+		}
+
+		private void OnDisable()
+		{
+			foreach (Delegate d in ObjectGrabbed.GetInvocationList())
+				ObjectGrabbed -= (ObjectGrabbedHandler)d;
+			foreach (Delegate d in ObjectReleased.GetInvocationList())
+				ObjectReleased -= (ObjectReleasedHandler)d;
+			foreach (Delegate d in GripReleased.GetInvocationList())
+				GripReleased -= (GripReleasedHandler)d;
+			foreach (Delegate d in TriggerReleased.GetInvocationList())
+				TriggerReleased -= (TriggerReleasedHandler)d;
+			foreach (Delegate d in TriggerPressed.GetInvocationList())
+				TriggerPressed -= (TriggerPressedHandler)d;
+		}
+
 		public void GetHands() => _hands = GetComponentsInChildren<Grabber>().ToList();
 
 		private void Update()
