@@ -123,8 +123,10 @@ namespace VRTools.Interaction
 		new private void Awake()
 		{
 			base.Awake();
-			_hands = GetComponentsInChildren<Grabber>().ToList();
+			GetHands();
 		}
+
+		public void GetHands() => _hands = GetComponentsInChildren<Grabber>().ToList();
 
 		private void Update()
 		{

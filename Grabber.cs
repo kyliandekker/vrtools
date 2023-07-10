@@ -86,7 +86,7 @@ namespace VRTools.Interaction
 			if (_potentiallyGrabbedObject && _potentiallyGrabbedObject.GrabSettings.HasPriority)
 				return;
 
-			if (!_potentiallyGrabbedObject || grabbable.GrabSettings.HasPriority || Vector3.Distance(_potentiallyGrabbedObject.transform.position, transform.position) < Vector3.Distance(grabbable.transform.position, transform.position))
+			if (!_potentiallyGrabbedObject || grabbable.GrabSettings.HasPriority || Vector3.Distance(grabbable.transform.position, transform.position) < Vector3.Distance(_potentiallyGrabbedObject.transform.position, transform.position))
 				_potentiallyGrabbedObject = grabbable;
 		}
 

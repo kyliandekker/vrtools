@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -97,12 +98,15 @@ namespace VRTools.Interaction
 		private GrabSettings _grabSettings = null;
 		public GrabSettings GrabSettings => _grabSettings;
 
-		private Collider[] colliders;
+		private List<Collider> _colliders = new List<Collider>();
 
 		protected void Awake()
         {
 			_initialTransform = transform.parent;
-			colliders = GetComponentsInChildren<Collider>();
+			Collider[] c = GetComponentsInChildren<Collider>();
+			for (int i = 0; i < c.Length; i++)
+				if (c[i] != null && !c[i].isTrigger)
+					_colliders.Add(c[i]);
 		}
 
         void OnDestroy()
@@ -131,7 +135,7 @@ namespace VRTools.Interaction
 			if (_grabbedBy && _grabbedBy != grabber)
 				_grabbedBy.ResetGrabbable();
 
-			colliders.ToList().ForEach(x => x.isTrigger = true);
+			_colliders.ForEach(x => x.isTrigger = true);
 
 			if (parentGrabbedObject || _grabSettings.ParentObject)
 				transform.SetParent(grabber.transform);
@@ -183,7 +187,7 @@ namespace VRTools.Interaction
 			if (_grabbedBy != grabber)
 				return true;
 
-			colliders.ToList().ForEach(x => x.isTrigger = false);
+			_colliders.ForEach(x => x.isTrigger = false);
 
 			Rigidbody _rigidBody = gameObject.GetComponent<Rigidbody>();
 			_rigidBody.isKinematic = false;
