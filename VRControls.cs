@@ -7,28 +7,6 @@ using VRTools.Utils;
 
 namespace VRTools.Interaction
 {
-	public class GripReleasedEventArgs : EventArgs
-	{
-		public Grabber grabber = null;
-		public float value = 0.0f;
-		public float floatValue = 0.0f;
-		public InputDevice device;
-	}
-
-	public class TriggerReleasedEventArgs : EventArgs
-	{
-		public Grabber grabber = null;
-		public float value = 0.0f;
-	}
-
-	public class TriggerPressedEventArgs : EventArgs
-	{
-		public Grabber grabber = null;
-		public float value = 0.0f;
-		public float floatValue = 0.0f;
-		public InputDevice device;
-	}
-
 	public class FloatInputAction
 	{
 		public XRNode Hand;
@@ -38,66 +16,6 @@ namespace VRTools.Interaction
 
 	public class VRControls : UnitySingleton<VRControls>
 	{
-		/* 
-		* Name: OnObjectGrabbed.
-		* Description: Called when a player picks up an object.
-		*/
-		public delegate void ObjectGrabbedHandler(object sender, GrabbedEventArgs e);
-		public event ObjectGrabbedHandler ObjectGrabbed = delegate { };
-
-		public void OnObjectGrabbed(object sender, GrabbedEventArgs e)
-		{
-			ObjectGrabbed.Invoke(sender, e);
-		}
-
-		/* 
-		* Name: OnObjectReleased.
-		* Description: Called when a player releases a picked up an object.
-		*/
-		public delegate void ObjectReleasedHandler(object sender, ReleasedEventArgs e);
-		public event ObjectReleasedHandler ObjectReleased = delegate { };
-
-		public void OnObjectReleased(object sender, ReleasedEventArgs e)
-		{
-			ObjectReleased.Invoke(sender, e);
-		}
-
-		/* 
-		* Name: OnGripReleased.
-		* Description: When the player presses the pick up button.
-		*/
-		public delegate void GripReleasedHandler(object sender, GripReleasedEventArgs e);
-		public event GripReleasedHandler GripReleased = delegate { };
-
-		public void OnGripReleased(object sender, GripReleasedEventArgs e)
-		{
-			GripReleased.Invoke(sender, e);
-		}
-
-		/* 
-		* Name: OnTriggerReleased.
-		* Description: When the player releases the pick up button.
-		*/
-		public delegate void TriggerReleasedHandler(object sender, TriggerReleasedEventArgs e);
-		public event TriggerReleasedHandler TriggerReleased = delegate { };
-
-		public void OnTriggerReleased(object sender, TriggerReleasedEventArgs e)
-		{
-			TriggerReleased.Invoke(sender, e);
-		}
-
-		/* 
-		* Name: OnTriggerPressed.
-		* Description: When the player releases the pick up button.
-		*/
-		public delegate void TriggerPressedHandler(object sender, TriggerPressedEventArgs e);
-		public event TriggerPressedHandler TriggerPressed = delegate { };
-
-		public void OnTriggerPressed(object sender, TriggerPressedEventArgs e)
-		{
-			TriggerPressed.Invoke(sender, e);
-		}
-
 		private List<Grabber> _hands = new List<Grabber>();
 		private Hand XRNodeToHand(XRNode node) => node == XRNode.RightHand ? Hand.Hand_Right : Hand.Hand_Left;
 		public Grabber GetHand(Hand hand) => _hands.Find(x => x.HandType == hand);
@@ -124,34 +42,6 @@ namespace VRTools.Interaction
 		{
 			base.Awake();
 			GetHands();
-		}
-
-		private void OnDestroy()
-		{
-			foreach (Delegate d in ObjectGrabbed.GetInvocationList())
-				ObjectGrabbed -= (ObjectGrabbedHandler)d;
-			foreach (Delegate d in ObjectReleased.GetInvocationList())
-				ObjectReleased -= (ObjectReleasedHandler)d;
-			foreach (Delegate d in GripReleased.GetInvocationList())
-				GripReleased -= (GripReleasedHandler)d;
-			foreach (Delegate d in TriggerReleased.GetInvocationList())
-				TriggerReleased -= (TriggerReleasedHandler)d;
-			foreach (Delegate d in TriggerPressed.GetInvocationList())
-				TriggerPressed -= (TriggerPressedHandler)d;
-		}
-
-		private void OnDisable()
-		{
-			foreach (Delegate d in ObjectGrabbed.GetInvocationList())
-				ObjectGrabbed -= (ObjectGrabbedHandler)d;
-			foreach (Delegate d in ObjectReleased.GetInvocationList())
-				ObjectReleased -= (ObjectReleasedHandler)d;
-			foreach (Delegate d in GripReleased.GetInvocationList())
-				GripReleased -= (GripReleasedHandler)d;
-			foreach (Delegate d in TriggerReleased.GetInvocationList())
-				TriggerReleased -= (TriggerReleasedHandler)d;
-			foreach (Delegate d in TriggerPressed.GetInvocationList())
-				TriggerPressed -= (TriggerPressedHandler)d;
 		}
 
 		public void GetHands() => _hands = GetComponentsInChildren<Grabber>().ToList();
@@ -181,7 +71,12 @@ namespace VRTools.Interaction
 				CheckTriggerInput(ref trigger[i]);
 		}
 
-		private void CheckPinchInput(ref FloatInputAction floatInputAction)
+        public virtual void Grab(Grabber grabber, GrabbableObject grabbed)
+        {
+
+        }
+
+        private void CheckPinchInput(ref FloatInputAction floatInputAction)
 		{
 			InputDevices.GetDevicesAtXRNode(floatInputAction.Hand, Devices);
 			if (Devices.Count > 0)
@@ -191,7 +86,11 @@ namespace VRTools.Interaction
 			}
 		}
 
-		private void CheckTriggerInput(ref FloatInputAction floatInputAction)
+		public virtual void Release(Grabber grabber, GrabbableObject grabbed)
+        {
+        }
+
+        private void CheckTriggerInput(ref FloatInputAction floatInputAction)
 		{
 			InputDevices.GetDevicesAtXRNode(floatInputAction.Hand, Devices);
 			if (Devices.Count > 0)
@@ -199,6 +98,21 @@ namespace VRTools.Interaction
 				InputDevice controller = Devices[Devices.Count - 1];
 				floatInputAction.Value = CheckTrigger(controller, floatInputAction.Value, GetHand(XRNodeToHand(floatInputAction.Hand)));
 			}
+		}
+
+		public virtual void OnGripReleased(Grabber grabber, float value, float floatValue, InputDevice controller)
+        {
+
+		}
+
+		public virtual void OnTriggerReleased(Grabber grabber, float tempTriggerRound, InputDevice controller)
+		{
+
+		}
+
+		public virtual void OnTriggerPressed(Grabber grabber, float value, float floatValue, InputDevice controller)
+		{
+
 		}
 
 		private float CheckPinch(InputDevice controller, float prevValue, Grabber grabber)
@@ -209,16 +123,7 @@ namespace VRTools.Interaction
 				float tempGripRound = Mathf.Round(tempGrip);
 				if (prevValue != tempGripRound && tempGripRound == 0)
 				{
-					{
-						GripReleasedEventArgs e = new GripReleasedEventArgs
-						{
-							grabber = grabber,
-							value = tempGripRound,
-							floatValue = tempGripRound,
-							device = controller
-						};
-						OnGripReleased(this, e);
-					}
+					OnGripReleased(grabber, tempGripRound, tempGripRound, controller);
 
 					_ = controller.TryGetFeatureValue(CommonUsages.deviceVelocity, out Vector3 velocity);
 					_ = controller.TryGetFeatureValue(CommonUsages.deviceAngularVelocity, out Vector3 angularVelocity);
@@ -245,31 +150,15 @@ namespace VRTools.Interaction
 				float tempTriggerRound = Mathf.Round(tempTrigger);
 				if (prevValue != tempTriggerRound && tempTriggerRound == 0)
 				{
-					{
-						TriggerReleasedEventArgs e = new TriggerReleasedEventArgs
-						{
-							grabber = grabber,
-							value = tempTriggerRound,
-						};
-						OnTriggerReleased(this, e);
-					}
+					OnTriggerReleased(grabber, tempTriggerRound, controller);
 
 					return tempTriggerRound;
 				}
-				{
-					TriggerPressedEventArgs e = new TriggerPressedEventArgs
-					{
-						grabber = grabber,
-						value = tempTriggerRound,
-						floatValue = tempTrigger,
-						device = controller
-					};
-					OnTriggerPressed(this, e);
-				}
+				OnTriggerPressed(grabber, tempTriggerRound, tempTrigger, controller);
 
 				return tempTriggerRound;
 			}
 			return 0.0f;
 		}
-	}
+    }
 }

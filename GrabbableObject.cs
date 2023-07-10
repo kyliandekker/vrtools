@@ -67,7 +67,7 @@ namespace VRTools.Interaction
 		{
 			Grabbed.Invoke(sender, e);
 
-			VRControls.Instance.OnObjectGrabbed(this, e);
+			FindObjectOfType<VRControls>().Grab(e.grabber, e.grabbed);
 		}
 
 		/* 
@@ -81,7 +81,7 @@ namespace VRTools.Interaction
 		{
 			Released.Invoke(sender, e);
 
-			VRControls.Instance.OnObjectReleased(this, e);
+			FindObjectOfType<VRControls>().Release(e.grabber, e.grabbed);
 		}
 
 		protected Grabber _grabbedBy = null;
